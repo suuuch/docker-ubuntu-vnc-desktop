@@ -7,9 +7,10 @@
 FROM ubuntu:18.04 as system
 
 
-
-RUN sed -i 's#http://archive.ubuntu.com/ubuntu/#mirror://mirrors.ubuntu.com/mirrors.txt#' /etc/apt/sources.list; 
-
+# change to aliyun mirrors
+RUN sed -i s/archive.ubuntu.com/mirrors.aliyun.com/g /etc/apt/sources.list \
+    && sed -i s/security.ubuntu.com/mirrors.aliyun.com/g /etc/apt/sources.list \
+    && apt-get update && apt-get upgrade
 
 # built-in packages
 ENV DEBIAN_FRONTEND noninteractive
@@ -17,7 +18,7 @@ RUN apt update \
     && apt install -y --no-install-recommends software-properties-common curl apache2-utils \
     && apt update \
     && apt install -y --no-install-recommends --allow-unauthenticated \
-        supervisor nginx sudo net-tools zenity xz-utils \
+        supervisor nginx sudo net-tools zenity xz-utils python3-pip git vim \
         dbus-x11 x11-utils alsa-utils \
         mesa-utils libgl1-mesa-dri \
     && apt autoclean -y \
@@ -64,6 +65,7 @@ RUN apt-get update \
     && dpkg-query -W -f='${Package}\n' > /tmp/a.txt \
     && apt-get install -y python-pip python-dev build-essential \
 	&& pip install setuptools wheel && pip install -r /tmp/requirements.txt \
+	&& pip3 install imapclient && pip3 install selenium \
     && dpkg-query -W -f='${Package}\n' > /tmp/b.txt \
     && apt-get remove -y `diff --changed-group-format='%>' --unchanged-group-format='' /tmp/a.txt /tmp/b.txt | xargs` \
     && apt-get autoclean -y \
@@ -76,9 +78,6 @@ RUN apt-get update \
 # builder
 ################################################################################
 FROM ubuntu:18.04 as builder
-
-
-RUN sed -i 's#http://archive.ubuntu.com/ubuntu/#mirror://mirrors.ubuntu.com/mirrors.txt#' /etc/apt/sources.list; 
 
 
 RUN apt-get update \
