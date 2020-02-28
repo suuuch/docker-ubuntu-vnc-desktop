@@ -10,11 +10,16 @@ FROM ubuntu:18.04 as system
 # change to aliyun mirrors
 RUN sed -i s/archive.ubuntu.com/mirrors.aliyun.com/g /etc/apt/sources.list \
     && sed -i s/security.ubuntu.com/mirrors.aliyun.com/g /etc/apt/sources.list \
-    && apt-get update && apt-get upgrade
+    && apt-get -y update && apt-get -y upgrade
 
 # Change Pypi Source
+# Change Pypi Source
 RUN mkdir $HOME/.pip \
-    && echo -e "[global]\nindex-url = http://mirrors.aliyun.com/pypi/simple/ \n[install] \ntrusted-host = mirrors.aliyun.com" > $HOME/.pip/pip.conf 
+    && echo  "[global]" >> $HOME/.pip/pip.conf \
+    && echo  "index-url = http://mirrors.aliyun.com/pypi/simple/" >> $HOME/.pip/pip.conf \
+    && echo  "[install]" >> $HOME/.pip/pip.conf \
+    && echo  "trusted-host = mirrors.aliyun.com" >> $HOME/.pip/pip.conf
+
 
 # built-in packages
 ENV DEBIAN_FRONTEND noninteractive
